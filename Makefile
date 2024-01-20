@@ -43,16 +43,10 @@ project_setup:
 	echo '.vscode/\n.idea/' >> .gitignore
 	curl -s https://raw.githubusercontent.com/github/gitignore/master/Python.gitignore >> .gitignore
 	git init
-	git add .
-	git commit -m "init"
-	git branch -M main
-	git remote add origin https://github.com/teremyz/airqualityforecast.git
-	git push -u origin main
 
 	echo "pre-commit init"
 	pre-commit install
 	pre-commit autoupdate
-	pre-commit run --all-files
 	pre-commit run --all-files
 
 poetry_shell:
