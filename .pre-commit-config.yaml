@@ -18,7 +18,7 @@ repos:
     rev: v1.8.0
     hooks:
         - id: mypy
-          additional_dependencies: [pydantic]  # add if use pydantic
+          additional_dependencies: [pydantic, 'types-requests', 'types-PyYAML']  # add if use pydantic
 -   repo: https://github.com/PyCQA/isort
     rev: 5.13.2
     hooks:
