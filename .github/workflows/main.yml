@@ -1,0 +1,44 @@
+name: App CI pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+env:
+  AQI_TOKEN: ${{ secrets.AQI_TOKEN }}
+  FS_API_KEY: ${{ secrets.FS_API_KEY }}
+  FS_PROJECT_NAME: ${{ secrets.FS_PROJECT_NAME }}
+  
+jobs:
+  
+  build:
+
+    runs-on: ubuntu-latest
+  
+    steps:
+    - uses: actions/checkout@v3
+    
+    - uses: actions/setup-python@v4
+      with:
+        python-version: '3.10.10' 
+    - name: Update pip
+      run: pip install -U pip
+      
+    - name: Install poetry
+      run: pip install poetry
+
+    - name: Install python packages
+      run: |
+        poetry install
+      
+    - name: Unit test application
+      run: |
+        pip install -U pytest
+        pytest tests/
+    
+    - name: Run feature pipeline
+      run: | 
+        python -m pip install typer-cli
+        typer src/stages/api_feature_pipeline.py run --config config.yaml
+  
