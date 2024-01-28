@@ -34,13 +34,9 @@ jobs:
       
     - name: Unit test application
       run: |
-        pip show pandas
-        pip show wheel
-        pip install -U pytest==7.4.4
-        pytest tests/
+        poetry run pytest tests/
     
     - name: Run feature pipeline
       run: | 
-        python -m pip install typer-cli
-        typer src/stages/api_feature_pipeline.py run --config config.yaml
+        poetry run typer src/stages/api_feature_pipeline.py run --config config.yaml
   
