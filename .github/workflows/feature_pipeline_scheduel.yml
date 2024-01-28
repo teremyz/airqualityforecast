@@ -1,0 +1,35 @@
+name: "Run feature pipeline every day once"
+on:
+  schedule:
+  - cron: "0 21 * * *"
+
+  env:
+  AQI_TOKEN: ${{ secrets.AQI_TOKEN }}
+  FS_API_KEY: ${{ secrets.FS_API_KEY }}
+  FS_PROJECT_NAME: ${{ secrets.FS_PROJECT_NAME }}
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - uses: actions/setup-python@v4
+      with:
+        python-version: '3.10.10'
+    - name: Update pip
+      run: pip install -U pip
+
+    - name: Install poetry
+      run: pip install poetry==1.5.1
+
+    - name: Install python packages
+      run: |
+        poetry install
+
+    - name: Run feature pipeline
+      run: |
+        poetry run typer src/stages/api_feature_pipeline.py run --config config.yaml
