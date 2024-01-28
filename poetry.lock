@@ -967,18 +967,18 @@ docs = ["keras_autodoc @ git+https://git@github.com/moritzmeister/keras-autodoc@
 
 [[package]]
 name = "hsfs"
-version = "3.4.5"
+version = "3.4.7"
 description = "HSFS: An environment independent client to interact with the Hopsworks Featurestore"
 optional = false
-python-versions = ">=3.7,<3.12"
+python-versions = ">=3.8,<3.13"
 files = [
-    {file = "hsfs-3.4.5.tar.gz", hash = "sha256:eae74766b5420ce143474522776325c0ef2b4750fef48d05a6985c7f09c3081e"},
+    {file = "hsfs-3.4.7.tar.gz", hash = "sha256:725e019195500a43053eb50f7f796eea616a07242ca9efbba68262a1d5460c9d"},
 ]
 
 [package.dependencies]
 avro = "1.11.0"
 boto3 = "*"
-confluent-kafka = {version = "<=2.1.1", optional = true, markers = "extra == \"python\""}
+confluent-kafka = {version = "<=2.3.0", optional = true, markers = "extra == \"python\""}
 fastavro = {version = ">=1.4.11,<=1.8.2", optional = true, markers = "extra == \"python\""}
 fsspec = "*"
 furl = "*"
@@ -986,7 +986,7 @@ great_expectations = "0.14.13"
 markupsafe = "<2.1.0"
 mock = "*"
 numpy = "<2"
-pandas = "<2.1.0"
+pandas = "<2.2.0"
 pyarrow = {version = ">=10.0", optional = true, markers = "extra == \"python\""}
 pyhopshive = {version = "*", extras = ["thrift"], optional = true, markers = "extra == \"python\""}
 pyhumps = "1.6.1"
@@ -1001,8 +1001,8 @@ tzlocal = "*"
 dev = ["black", "flake8", "moto[s3]", "pyspark (==3.1.1)", "pytest (==7.1.2)", "pytest-mock (==3.8.2)"]
 dev-pandas1 = ["black", "flake8", "moto[s3]", "pandas (<=1.5.3)", "pyspark (==3.1.1)", "pytest (==7.1.2)", "pytest-mock (==3.8.2)", "sqlalchemy (<=1.4.48)"]
 docs = ["keras_autodoc @ git+https://git@github.com/moritzmeister/keras-autodoc@split-tags-properties", "markdown (==3.3.7)", "markdown-include", "mike (==1.1.2)", "mkdocs (==1.3.0)", "mkdocs-jupyter (==0.21.0)", "mkdocs-macros-plugin (==0.7.0)", "mkdocs-material (==8.2.8)", "mkdocs-minify-plugin (>=0.2.0)", "pymdown-extensions", "sphinx (==3.5.4)"]
-hive = ["confluent-kafka (<=2.1.1)", "fastavro (>=1.4.11,<=1.8.2)", "pyarrow (>=10.0)", "pyhopshive[thrift]"]
-python = ["confluent-kafka (<=2.1.1)", "fastavro (>=1.4.11,<=1.8.2)", "pyarrow (>=10.0)", "pyhopshive[thrift]", "tqdm"]
+hive = ["confluent-kafka (<=2.3.0)", "fastavro (>=1.4.11,<=1.8.2)", "pyarrow (>=10.0)", "pyhopshive[thrift]"]
+python = ["confluent-kafka (<=2.3.0)", "fastavro (>=1.4.11,<=1.8.2)", "pyarrow (>=10.0)", "pyhopshive[thrift]", "tqdm"]
 
 [[package]]
 name = "hsml"
@@ -3039,6 +3039,17 @@ files = [
 ]
 
 [[package]]
+name = "types-requests"
+version = "2.25.0"
+description = "Typing stubs for requests"
+optional = false
+python-versions = "*"
+files = [
+    {file = "types-requests-2.25.0.tar.gz", hash = "sha256:ee0d0c507210141b7d5b8639cc43eaa726084178775db2a5fb06fbf85c185808"},
+    {file = "types_requests-2.25.0-py3-none-any.whl", hash = "sha256:fa5c1e5e832ff6193507d8da7e1159281383908ee193a2f4b37bc08140b51844"},
+]
+
+[[package]]
 name = "typing-extensions"
 version = "4.9.0"
 description = "Backported and Experimental Type Hints for Python 3.8+"
@@ -3142,4 +3153,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = "3.10.10"
-content-hash = "d3307debc97de3329536ed6e0daa318a21f6699f5daee8a3abe53068aab27a8d"
+content-hash = "b06f767af452c7db36a3c1166b0ffa314adc877955c2a0be2bec57e7be63eed7"
