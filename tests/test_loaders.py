@@ -4,22 +4,8 @@ import pandas as pd
 from dotenv import load_dotenv
 
 from src.core.data import AirQalityMeasurement
-from src.core.loaders import (
-    APIDataSource,
-    MeasurementDataSource,
-    MeasurementLoader,
-)
+from src.core.loaders import APIDataSource, MeasurementLoader
 from src.core.utils import load_params
-
-
-def test_measurement_data_source():
-    params = load_params(params_file="config.yaml")
-    loader = MeasurementDataSource(file_path=params.basic.data_path)
-
-    df = loader.get_data()
-
-    assert isinstance(df, pd.DataFrame)
-    assert df.shape[1] == 7
 
 
 def test_api_data_source():
