@@ -12,7 +12,7 @@ from src.core.loaders import (
 from src.core.utils import load_params
 
 
-def main(config: str = "../config.yaml") -> None:
+def main(config: str = "config.yaml") -> None:
     print(__file__)
     params = load_params(params_file=config)
     load_dotenv(params.basic.env_path)
