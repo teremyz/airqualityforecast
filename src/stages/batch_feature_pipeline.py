@@ -1,21 +1,15 @@
 import os
-import sys
-from pathlib import Path
 
-src_path = Path(os.path.abspath("")).resolve()
-sys.path.append(str(src_path))
+import typer
+from dotenv import load_dotenv
 
-
-import typer  # noqa: E402
-from dotenv import load_dotenv  # noqa: E402
-
-from core.loaders import (  # noqa: E402
+from src.core.loaders import (
     DataUpdater,
     HopsworkFsInserter,
     MeasurementDataSource,
     MeasurementLoader,
 )
-from core.utils import load_params  # noqa: E402
+from src.core.utils import load_params
 
 
 def main(config: str = "../config.yaml") -> None:
@@ -23,8 +17,8 @@ def main(config: str = "../config.yaml") -> None:
     params = load_params(params_file=config)
     load_dotenv(params.basic.env_path)
 
-    FS_API_KEY = os.getenv("FS_API_KEY")
-    FS_PROJECT_NAME = os.getenv("FS_PROJECT_NAME")
+    FS_API_KEY = os.getenv("FS_API_KEY", "no api key")
+    FS_PROJECT_NAME = os.getenv("FS_PROJECT_NAME", "no project name")
 
     data_updater = DataUpdater(
         loader=MeasurementLoader(

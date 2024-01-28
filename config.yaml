@@ -1,4 +1,4 @@
 basic:
-  data_path: '../data/budapest-széna tér, budapest, hungary-air-quality.csv'
-  env_path: '../.env'
+  data_path: 'data/budapest-széna tér, budapest, hungary-air-quality.csv'
+  env_path: '.env'
   city_id: 3371

@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 import requests
 
-from core.data import AirQalityMeasurement
+from src.core.data import AirQalityMeasurement
 
 
 class MeasurementDataSource:
@@ -28,6 +28,7 @@ class APIDataSource:
             f"https://api.waqi.info/feed/@{self.city_id}/?token={self.token}"
         ).json()
         resp_data = dict()
+
         for key in ["pm25", "pm10", "o3", "no2", "so2", "co"]:
             try:
                 resp_data[key] = resp["data"]["iaqi"][key]["v"]
@@ -108,5 +109,3 @@ class DataUpdater:
         measurements = self.loader.get_measurements()
 
         self.inserter.insert_data(measurements)
-
-        print(len(measurements))
