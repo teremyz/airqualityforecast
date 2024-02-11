@@ -1,7 +1,7 @@
 name: Do things every 5 minutes
 on:
   schedule:
-    - cron: "*/1 * * * *"
+    - cron: '*/1 * * * *'
 jobs:
   test_schedule:
     runs-on: ubuntu-latest
