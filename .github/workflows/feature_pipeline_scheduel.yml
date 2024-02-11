@@ -1,7 +1,7 @@
 name: Run feature pipeline every day once
 on:
   schedule:
-  - cron: '0 21 * * *'
+  - cron: '45 16 * * *'
 
 env:
   AQI_TOKEN: ${{ secrets.AQI_TOKEN }}
