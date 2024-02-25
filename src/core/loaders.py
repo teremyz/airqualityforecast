@@ -40,8 +40,35 @@ class APIDataSource:
         return pd.DataFrame(resp_data, index=[0])
 
 
+class HopsworkDataLoader:
+    def __init__(
+        self,
+        fs_api_key: str,
+        fs_project_name: str,
+        feature_group_name: str,
+        version: int = 1,
+    ):
+        self.feature_group_name = feature_group_name
+        self.version = version
+        self.project = hopsworks.login(
+            project=fs_project_name, api_key_value=fs_api_key
+        )
+
+    def get_data(self) -> pd.DataFrame:
+        fs = self.project.get_feature_store()
+
+        air_quality_fg = fs.get_feature_group(
+            name=self.feature_group_name, version=self.version
+        )
+
+        return air_quality_fg.read()
+
+
 class MeasurementLoader:
-    def __init__(self, loader: APIDataSource | MeasurementDataSource) -> None:
+    def __init__(
+        self,
+        loader: APIDataSource | MeasurementDataSource | HopsworkDataLoader,
+    ) -> None:
         self.loader = loader
 
     def get_measurements(self) -> list[AirQalityMeasurement]:
@@ -55,9 +82,6 @@ class MeasurementLoader:
             co = pd.to_numeric(data.co, errors="coerce")
 
             measurement = AirQalityMeasurement(
-                # date=datetime.date(
-                #    *[int(num) for num in data.date.split("/")]
-                # ),
                 date=pd.to_datetime(data.date).date(),
                 pm25=pm25,
                 pm10=pm10,
@@ -98,14 +122,14 @@ class HopsworkFsInserter:
         )
 
 
-class DataUpdater:
-    def __init__(
-        self, loader: MeasurementLoader, inserter: HopsworkFsInserter
-    ):
-        self.loader = loader
-        self.inserter = inserter
+# class DataUpdater:
+#     def __init__(
+#         self, loader: MeasurementLoader, inserter: HopsworkFsInserter
+#     ):
+#         self.loader = loader
+#         self.inserter = inserter
 
-    def run(self) -> None:
-        measurements = self.loader.get_measurements()
+#     def run(self) -> None:
+#         measurements = self.loader.get_measurements()
 
-        self.inserter.insert_data(measurements)
+#         self.inserter.insert_data(measurements)
