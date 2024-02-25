@@ -18,7 +18,11 @@ from sklearn.metrics import (
 from xgboost import XGBRegressor
 
 from src.core.data import AirQalityMeasurement
-from src.core.utils import reindex_dataframe
+from src.core.utils import (
+    get_best_experiment_today,
+    reindex_dataframe,
+    set_prod_status_to_none,
+)
 from src.core.visualisation import (
     create_true_vs_pred_line_plot,
     create_true_vs_predicted_scatter,
@@ -203,3 +207,40 @@ def objective(
     gc.collect()
 
     return metrics["rmse"]
+
+
+class ModelRegistry:
+    def __init__(
+        self,
+        api_key: str,
+        workspace_name: str,
+        project_name: str,
+        model_name: str,
+        status: str,
+    ):
+        self.api_key = api_key
+        self.workspace_name = workspace_name
+        self.project_name = project_name
+        self.model_name = model_name
+        self.status = status
+
+    def register_model_(self) -> None:
+        best_experiment = get_best_experiment_today(
+            api_key=self.api_key,
+            workspace_name=self.workspace_name,
+            project_name=self.project_name,
+            metric_name="test_rmse",
+        )
+
+        set_prod_status_to_none(
+            api_key=self.api_key,
+            workspace=self.workspace_name,
+            registry_name=self.project_name,
+        )
+
+        best_experiment.register_model(
+            model_name=self.model_name,
+            workspace=self.workspace_name,
+            registry_name=self.project_name,
+            status=self.status,
+        )

@@ -5,7 +5,12 @@ from dotenv import load_dotenv
 from xgboost import XGBRegressor
 
 from src.core.loaders import HopsworkDataLoader, MeasurementLoader
-from src.core.model import AqiExperimentLogger, AqiModel, AqiSplitter
+from src.core.model import (
+    AqiExperimentLogger,
+    AqiModel,
+    AqiSplitter,
+    ModelRegistry,
+)
 from src.core.pipelines import TrainingPipeline
 from src.core.utils import load_params
 
@@ -37,6 +42,13 @@ def main(config: str = "config.yaml") -> None:
             src_dir=params.train.src_dir,
         ),
         splitter=AqiSplitter(),
+        model_registry=ModelRegistry(
+            api_key=os.getenv("COMETML_API_KEY", ""),
+            workspace_name=os.getenv("COMETML_WORKSPACE_NAME", ""),
+            project_name=os.getenv("COMETML_PROJECT_NAME", ""),
+            model_name=params.train.model_name,
+            status="Production",
+        ),
     )
     training_pipeline.run()
 

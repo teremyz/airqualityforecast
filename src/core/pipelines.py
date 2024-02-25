@@ -7,6 +7,7 @@ from src.core.model import (
     AqiExperimentLogger,
     AqiModel,
     AqiSplitter,
+    ModelRegistry,
     objective,
 )
 
@@ -31,11 +32,13 @@ class TrainingPipeline:
         splitter: AqiSplitter,
         model: AqiModel,
         logger: AqiExperimentLogger,
+        model_registry: ModelRegistry,
     ):
         self.loader = loader
         self.model = model
         self.logger = logger
         self.splitter = splitter
+        self.model_registry = model_registry
 
     def run(self) -> None:
         measurements = self.loader.get_measurements()
@@ -52,6 +55,8 @@ class TrainingPipeline:
 
         self.logger.log(metrics=self.metrics, model=self.model.predictor)
 
+        self.model_registry.register_model_()
+
 
 class HyperparameterOptimizationPipeline:
     def __init__(
@@ -60,11 +65,13 @@ class HyperparameterOptimizationPipeline:
         model: AqiModel,
         logger: AqiExperimentLogger,
         train_test_splitter: AqiSplitter,
+        model_registry: ModelRegistry,
     ) -> None:
         self.loader = loader
         self.model = model
         self.logger = logger
         self.train_test_splitter = train_test_splitter
+        self.model_registry = model_registry
 
     def run(self, n_trials: int, direction: str, study_name: str) -> None:
         measurements = self.loader.get_measurements()
@@ -81,3 +88,5 @@ class HyperparameterOptimizationPipeline:
 
         study = optuna.create_study(study_name=study_name, direction=direction)
         study.optimize(objective_with_params, n_trials=n_trials)
+
+        self.model_registry.register_model_()
