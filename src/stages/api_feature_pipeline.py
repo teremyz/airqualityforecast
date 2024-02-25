@@ -5,10 +5,10 @@ from dotenv import load_dotenv
 
 from src.core.loaders import (
     APIDataSource,
-    DataUpdater,
     HopsworkFsInserter,
     MeasurementLoader,
 )
+from src.core.pipelines import FeaturePipeline
 from src.core.utils import load_params
 
 
@@ -20,7 +20,7 @@ def main(config: str = "config.yaml") -> None:
     FS_API_KEY = os.getenv("FS_API_KEY", "no api key")
     FS_PROJECT_NAME = os.getenv("FS_PROJECT_NAME", "no project name")
 
-    data_updater = DataUpdater(
+    feature_pipeline = FeaturePipeline(
         loader=MeasurementLoader(
             loader=APIDataSource(token=AQI_TOKEN, city_id=params.basic.city_id)
         ),
@@ -28,7 +28,7 @@ def main(config: str = "config.yaml") -> None:
             fs_projet_name=FS_PROJECT_NAME, fs_api_key=FS_API_KEY
         ),
     )
-    data_updater.run()
+    feature_pipeline.run()
 
 
 if __name__ == "__main__":
