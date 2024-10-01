@@ -9,34 +9,47 @@ env:
   AQI_TOKEN: ${{ secrets.AQI_TOKEN }}
   FS_API_KEY: ${{ secrets.FS_API_KEY }}
   FS_PROJECT_NAME: ${{ secrets.FS_PROJECT_NAME }}
-  
+
 jobs:
-  
+
   build:
 
     runs-on: ubuntu-latest
-  
+
     steps:
     - uses: actions/checkout@v3
-    
+
     - uses: actions/setup-python@v4
       with:
-        python-version: '3.10.10' 
+        python-version: '3.10.10'
     - name: Update pip
       run: pip install -U pip
-      
+
     - name: Install poetry
       run: pip install poetry==1.5.1
 
     - name: Install python packages
       run: |
         poetry install
-      
+
     - name: Unit test application
       run: |
         poetry run pytest tests/
-    
-    - name: Run feature pipeline
-      run: | 
-        poetry run typer src/stages/api_feature_pipeline.py run --config config.yaml
-  
+
+    - name: Login to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: build docker image
+      run: |
+        docker build -t teremyz21/airquality_env .
+
+    - name: push docker image
+      run: |
+        docker push teremyz21/airquality_env .
+
+    - name: create environment in azure ml from docker image
+      run: |
+        az ml environment create --file airq-azure-environment.yaml --resource-group rg-airqualityforecast --workspace-name ml-airqualityforecast
