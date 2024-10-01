@@ -6,6 +6,16 @@ basic:
   feature_group_description: "Budapest air quality index data"
   feature_group_version: 1
 
+azure:
+  resource_group: 'rg-airqualityforecast' #TODO: comments as explanations
+  workspace: 'ml-airqualityforecast'
+  environment: "airquality_env@latest"
+  compute: "airquality-inference"
+  inference_display_name: "air-quality-inference"
+  inference_experiment_name: "air-quality-inference"
+  feature_display_name: "air-quality-feature"
+  feature_experiment_name: "air-quality-feature"
+
 train:
   artifact_dir: "artifacts/"
   model_name: "XGBRegressor"
