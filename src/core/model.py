@@ -2,12 +2,14 @@ import datetime
 import gc
 import os
 import pickle
+from abc import ABC, abstractmethod
 from typing import Dict, List, Tuple
 
 import numpy as np
 import numpy.typing as npt
 import pandas as pd
 from comet_ml import Experiment
+from comet_ml.api import API
 from optuna.trial import Trial
 from sklearn.metrics import (
     mean_absolute_error,
@@ -17,7 +19,7 @@ from sklearn.metrics import (
 )
 from xgboost import XGBRegressor
 
-from src.core.data import AirQalityMeasurement
+from src.core.data import AirQalityMeasurement, AirQalityPrediction
 from src.core.utils import (
     get_best_experiment_today,
     reindex_dataframe,
@@ -29,7 +31,31 @@ from src.core.visualisation import (
 )
 
 
-class AqiModel:
+class Model(ABC):
+    @abstractmethod
+    def process_inputs(
+        self, measurements: List[AirQalityMeasurement]
+    ) -> pd.DataFrame:
+        pass
+
+    @abstractmethod
+    def prerocess_target(
+        self, measurements: List[AirQalityMeasurement]
+    ) -> pd.DataFrame:
+        pass
+
+    @abstractmethod
+    def train(self, measurements: List[AirQalityMeasurement]) -> None:
+        pass
+
+    @abstractmethod
+    def predict(
+        self, measurements: List[AirQalityMeasurement]
+    ) -> npt.NDArray[np.float64]:
+        pass
+
+
+class AqiModel(Model):
     def __init__(self, predictor: XGBRegressor, ffill_limit: int, lags: int):
         self.predictor = predictor
         self.trained = False
@@ -79,7 +105,14 @@ class AqiModel:
         self, measurements: List[AirQalityMeasurement]
     ) -> npt.NDArray[np.float64]:
         inputs = self.process_inputs(measurements)
-        return self.predictor.predict(inputs)
+        prediction = self.predictor.predict(inputs)
+
+        return [
+            AirQalityPrediction(
+                date=date_prediction[0], prediction=date_prediction[1]
+            )
+            for date_prediction in zip(inputs.index, prediction)
+        ]
 
 
 class AqiExperimentLogger:
@@ -108,6 +141,8 @@ class AqiExperimentLogger:
         predictions: npt.NDArray[np.float64],
     ) -> Dict[str, float]:
         labels = [x.aqi for x in test_data]
+        predictions = [x.prediction for x in predictions]
+
         metrics = dict(
             mae=mean_absolute_error(labels, predictions),
             mse=mean_squared_error(labels, predictions),
@@ -127,17 +162,21 @@ class AqiExperimentLogger:
 
         return metrics
 
-    def log(self, metrics: Dict[str, float], model: XGBRegressor) -> None:
+    def log(self, metrics: Dict[str, float], model: AqiModel) -> None:
         experiment = Experiment(
             api_key=self.api_key,
             project_name=self.project_name,
             workspace=self.workspace,
             log_code=True,
         )
+
         with experiment.test():
             experiment.log_metrics(metrics, step=1)
 
-            experiment.log_parameters(model.get_params())
+            experiment.log_parameters(
+                model.predictor.get_params()
+            )  # TODO: add get_params to AqiModel class
+            # and log both parameters custom + xgb
 
         pickle.dump(
             model, open(f"{self.artifact_dir}/{self.model_name}.pkl", "wb")
@@ -202,7 +241,7 @@ def objective(
 
     metrics = logger.create_evaluation_logs(test_data, predictions)
 
-    logger.log(metrics=metrics, model=model.predictor)
+    logger.log(metrics=metrics, model=model)
 
     gc.collect()
 
@@ -244,3 +283,44 @@ class ModelRegistry:
             registry_name=self.project_name,
             status=self.status,
         )
+
+
+class ModelDownloader(ABC):
+    @abstractmethod
+    def get_model(self) -> Model:
+        pass
+
+
+class CometModelDownloader(ModelDownloader):
+    def __init__(
+        self,
+        api_key: str,
+        workspace: str,
+        project_name: str,
+        model_dir: str,
+        model_name: str,
+    ) -> None:
+        self.workspace = workspace
+        self.project_name = project_name
+        self.model_dir = model_dir
+        self.api_key = api_key
+        self.model_name = model_name
+
+    def get_model(self) -> Model:
+        api = API(api_key=self.api_key)
+
+        model_api = api.get_model(
+            workspace=self.workspace, model_name=self.project_name
+        )
+        latest_version = model_api.find_versions(
+            version_prefix="", status="Production", tag=None
+        )[0]
+        model_api.download(
+            version=latest_version, output_folder=self.model_dir
+        )
+
+        model = pickle.load(
+            open(os.path.join(self.model_dir, f"{self.model_name}.pkl"), "rb")
+        )
+
+        return model

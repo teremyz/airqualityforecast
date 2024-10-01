@@ -1,3 +1,7 @@
+import datetime
+from abc import ABC, abstractmethod
+from datetime import timedelta
+
 import hopsworks
 import numpy as np
 import pandas as pd
@@ -6,7 +10,13 @@ import requests
 from src.core.data import AirQalityMeasurement
 
 
-class MeasurementDataSource:
+class Loader(ABC):
+    @abstractmethod
+    def get_data(self) -> pd.DataFrame:
+        pass
+
+
+class MeasurementDataSource(Loader):
     def __init__(self, file_path: str):
         self.file_path = file_path
 
@@ -18,7 +28,7 @@ class MeasurementDataSource:
         return measurement_table
 
 
-class APIDataSource:
+class APIDataSource(Loader):
     def __init__(self, token: str, city_id: int = 3371):
         self.token = token
         self.city_id = city_id
@@ -40,7 +50,7 @@ class APIDataSource:
         return pd.DataFrame(resp_data, index=[0])
 
 
-class HopsworkDataLoader:
+class HopsworkDataLoader(Loader):
     def __init__(
         self,
         fs_api_key: str,
@@ -64,10 +74,16 @@ class HopsworkDataLoader:
         return air_quality_fg.read()
 
 
-class MeasurementLoader:
+class ValidationLoader(ABC):
+    @abstractmethod
+    def get_measurements(self) -> list[AirQalityMeasurement]:
+        pass
+
+
+class MeasurementLoader(ValidationLoader):
     def __init__(
         self,
-        loader: APIDataSource | MeasurementDataSource | HopsworkDataLoader,
+        loader: Loader,
     ) -> None:
         self.loader = loader
 
@@ -96,20 +112,34 @@ class MeasurementLoader:
         return measurements
 
 
-class HopsworkFsInserter:
-    def __init__(self, fs_projet_name: str, fs_api_key: str) -> None:
+class Inserter(ABC):
+    @abstractmethod
+    def insert_data(self, data: list[AirQalityMeasurement]) -> None:
+        pass
+
+
+class HopsworkFsInserter(Inserter):
+    def __init__(
+        self,
+        fg_name: str,
+        fg_description: str,
+        fs_projet_name: str,
+        fs_api_key: str,
+    ) -> None:
+        self.fg_name = fg_name
+        self.fg_description = fg_description
         self.project = hopsworks.login(
             project=fs_projet_name, api_key_value=fs_api_key
         )
 
-    def insert_data(self, measurements: list[AirQalityMeasurement]) -> None:
-        data = pd.DataFrame([v.model_dump() for v in measurements])
+    def insert_data(self, data: list[AirQalityMeasurement]) -> None:
+        data = pd.DataFrame([v.model_dump() for v in data])
 
         fs = self.project.get_feature_store()
 
         aqi_fg = fs.get_or_create_feature_group(
-            name="air_quality_feature_group",
-            description="Budapest air quality index data",
+            name=self.fg_name,
+            description=self.fg_description,
             version=1,
             primary_key=["date"],
             event_time="date",
@@ -122,14 +152,37 @@ class HopsworkFsInserter:
         )
 
 
-# class DataUpdater:
-#     def __init__(
-#         self, loader: MeasurementLoader, inserter: HopsworkFsInserter
-#     ):
-#         self.loader = loader
-#         self.inserter = inserter
+class HopsworkPredictionDataLoader(Loader):
+    def __init__(
+        self,
+        fs_api_key: str,
+        fs_project_name: str,
+        feature_group_name: str,
+        prediction_date: datetime.date,
+        lags: int,
+        version: int = 1,
+    ):
+        self.prediction_date = prediction_date
+        self.lags = lags
+        self.feature_group_name = feature_group_name
+        self.version = version
+        self.project = hopsworks.login(
+            project=fs_project_name, api_key_value=fs_api_key
+        )
 
-#     def run(self) -> None:
-#         measurements = self.loader.get_measurements()
+    def get_data(self) -> pd.DataFrame:
+        fs = self.project.get_feature_store()
 
-#         self.inserter.insert_data(measurements)
+        air_quality_fg = fs.get_feature_group(
+            name=self.feature_group_name, version=self.version
+        )
+
+        air_quality_fg = air_quality_fg.filter(
+            (air_quality_fg.date <= self.prediction_date)
+            & (
+                air_quality_fg.date
+                >= self.prediction_date - timedelta(days=self.lags)
+            )
+        )
+
+        return air_quality_fg.read(read_options={"use_hive": True})

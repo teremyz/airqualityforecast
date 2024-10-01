@@ -1,21 +1,27 @@
+from abc import ABC, abstractmethod
 from functools import partial
 
 import optuna
 
-from src.core.loaders import HopsworkFsInserter, MeasurementLoader
+from src.core.loaders import Inserter, MeasurementLoader, ValidationLoader
 from src.core.model import (
     AqiExperimentLogger,
     AqiModel,
     AqiSplitter,
+    ModelDownloader,
     ModelRegistry,
     objective,
 )
 
 
-class FeaturePipeline:
-    def __init__(
-        self, loader: MeasurementLoader, inserter: HopsworkFsInserter
-    ):
+class Pipeline(ABC):
+    @abstractmethod
+    def run(self) -> None:
+        pass
+
+
+class FeaturePipeline(Pipeline):
+    def __init__(self, loader: MeasurementLoader, inserter: Inserter):
         self.loader = loader
         self.inserter = inserter
 
@@ -25,7 +31,7 @@ class FeaturePipeline:
         self.inserter.insert_data(measurements)
 
 
-class TrainingPipeline:
+class TrainingPipeline(Pipeline):
     def __init__(
         self,
         loader: MeasurementLoader,
@@ -53,12 +59,12 @@ class TrainingPipeline:
             test_data, predictions
         )
 
-        self.logger.log(metrics=self.metrics, model=self.model.predictor)
+        self.logger.log(metrics=self.metrics, model=self.model)
 
         self.model_registry.register_model_()
 
 
-class HyperparameterOptimizationPipeline:
+class HyperparameterOptimizationPipeline:  # TODO: no parent class
     def __init__(
         self,
         loader: MeasurementLoader,
@@ -73,7 +79,10 @@ class HyperparameterOptimizationPipeline:
         self.train_test_splitter = train_test_splitter
         self.model_registry = model_registry
 
-    def run(self, n_trials: int, direction: str, study_name: str) -> None:
+    def run(
+        self, n_trials: int, direction: str, study_name: str
+    ) -> None:  # TODO: Is it a pipeline child? IF yes delete parameters
+        # TODO: put them in init or config
         measurements = self.loader.get_measurements()
 
         train_data, test_data = self.train_test_splitter.split(measurements)
@@ -90,3 +99,24 @@ class HyperparameterOptimizationPipeline:
         study.optimize(objective_with_params, n_trials=n_trials)
 
         self.model_registry.register_model_()
+
+
+class InferencePipeline(Pipeline):
+    def __init__(
+        self,
+        loader: ValidationLoader,
+        model_downloader: ModelDownloader,
+        prediction_writer: Inserter,
+    ):
+        self.loader = loader
+        self.model_downloader = model_downloader
+        self.prediction_writer = prediction_writer
+
+    def run(self) -> None:
+        data = self.loader.get_measurements()
+
+        model = self.model_downloader.get_model()
+
+        prediction = model.predict(data)[-1]
+
+        self.prediction_writer.insert_data([prediction])

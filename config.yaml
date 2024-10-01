@@ -3,6 +3,7 @@ basic:
   env_path: '.env'
   city_id: 7397
   feature_group_name: "air_quality_feature_group"
+  feature_group_description: "Budapest air quality index data"
   feature_group_version: 1
 
 train:
@@ -11,6 +12,9 @@ train:
   src_dir: "src/"
   ffill_limit: 3
   lags: 5
-  n_trials: 10
+  n_trials: 1
   direction: "minimize"
   study_name: "test"
+
+inference:
+  model_dir: 'model'

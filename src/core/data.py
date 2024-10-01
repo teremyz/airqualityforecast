@@ -12,3 +12,8 @@ class AirQalityMeasurement(BaseModel):
     so2: float
     co: float
     aqi: float
+
+
+class AirQalityPrediction(BaseModel):
+    date: datetime.date
+    prediction: float

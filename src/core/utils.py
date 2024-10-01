@@ -4,6 +4,7 @@ from datetime import date, datetime
 import numpy as np
 import pandas as pd
 import yaml
+from azure.ai.ml import MLClient, command
 from box import ConfigBox
 from comet_ml import API, Experiment
 
@@ -42,6 +43,7 @@ def get_best_experiment_today(
 
         if experiment_date == date.today().strftime("%Y-%m-%d"):
             metrics = experiment.get_metrics()
+            print(metrics)
             metric = float(
                 [x for x in metrics if x["metricName"] == metric_name][0][
                     "metricValue"
@@ -69,3 +71,21 @@ def set_prod_status_to_none(
             current_prod_version = registered_model["version"]
 
     model.set_status(version=current_prod_version, status="None")
+
+
+def run_command_on_azure(
+    config: str, cli_command: str, params: ConfigBox, ml_client: MLClient
+) -> str:
+    # configure job
+    job = command(
+        code=config,
+        command=cli_command,
+        environment=params.azure.environment,
+        compute=params.azure.compute,
+        display_name=params.azure.feature_display_name,
+        experiment_name=params.azure.feature_experiment_name,
+    )
+
+    # submit job
+    returned_job = ml_client.create_or_update(job)
+    return returned_job.studio_url
