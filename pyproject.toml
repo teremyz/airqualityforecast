@@ -4,10 +4,11 @@ version = "0.1.0"
 description = ""
 authors = ["Zsombor Teremy <teremyz21@gmail.com>"]
 readme = "README.md"
+packages = [
+    { include = "src"}]
 
 [tool.poetry.dependencies]
-python = "3.10.10"
-isort = "^5.13.2"
+python = ">=3.10.10,<3.10.17"
 pandas = "^2.0.0"
 requests = "^2.31.0"
 pydantic = "^2.5.3"
@@ -28,6 +29,10 @@ optuna = "^3.5.0"
 xgboost = "^2.0.3"
 scikit-learn = "^1.4.1.post1"
 comet-ml = "^3.38.0"
+azure-ai-ml = "^1.20.0"
+azure-identity = "^1.17.1"
+matplotlib = "^3.8.2"
+azure-keyvault-secrets = "^4.8.0"
 
 [tool.poetry.group.dev.dependencies]
 isort = "^5.13.2"
@@ -38,7 +43,12 @@ mypy = "^1.8.0"
 black = {version = "^24.1a1", allow-prereleases = true}
 ipykernel = "^6.29.0"
 pathlib = "^1.0.1"
-matplotlib = "^3.8.2"
+
+[tool.poetry.scripts]
+inference_pipeline = 'src.stages.inference_pipeline:app'
+training_pipeline = 'src.stages.training_pipeline:app'
+feature_pipeline = 'src.stages.api_feature_pipeline:app'
+hyperopt_pipeline = 'src.stages.hyperparam_optimization_pipeline:app'
 
 [build-system]
 requires = ["poetry-core"]
