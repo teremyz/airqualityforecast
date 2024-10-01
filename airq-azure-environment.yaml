@@ -1,0 +1,4 @@
+$schema: https://azuremlschemas.azureedge.net/latest/environment.schema.json
+name: airquality_env
+image: teremyz21/airquality_env:latest
+description: Environment created from a Docker image.
