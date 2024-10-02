@@ -1,5 +1,4 @@
 name: App CI pipeline
-
 on:
   push:
     branches: [ "main" ]
@@ -9,6 +8,9 @@ env:
   AQI_TOKEN: ${{ secrets.AQI_TOKEN }}
   FS_API_KEY: ${{ secrets.FS_API_KEY }}
   FS_PROJECT_NAME: ${{ secrets.FS_PROJECT_NAME }}
+
+permissions:
+  id-token: write
 
 jobs:
 
