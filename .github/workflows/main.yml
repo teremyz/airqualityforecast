@@ -28,6 +28,9 @@ jobs:
     - name: Install poetry
       run: pip install poetry==1.5.1
 
+    - name: Install azure cli
+      run: curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+
     - name: Install python packages
       run: |
         poetry install
