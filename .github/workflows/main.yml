@@ -48,7 +48,7 @@ jobs:
 
     - name: push docker image
       run: |
-        docker push teremyz21/airquality_env .
+        docker push teremyz21/airquality_env
 
     - name: create environment in azure ml from docker image
       run: |
