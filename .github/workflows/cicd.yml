@@ -1,13 +1,9 @@
-name: App CI pipeline
+name: App CICD pipeline
 on:
   push:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
-env:
-  AQI_TOKEN: ${{ secrets.AQI_TOKEN }}
-  FS_API_KEY: ${{ secrets.FS_API_KEY }}
-  FS_PROJECT_NAME: ${{ secrets.FS_PROJECT_NAME }}
 
 permissions:
   id-token: write
@@ -44,7 +40,7 @@ jobs:
 
     - name: Install python packages
       run: |
-        poetry install --only dev
+        poetry install
 
     - name: Run code quality tests
       run: |
