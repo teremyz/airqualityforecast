@@ -1,13 +1,14 @@
 import datetime
 from abc import ABC, abstractmethod
 from datetime import timedelta
+from typing import List
 
 import hopsworks
 import numpy as np
 import pandas as pd
 import requests
 
-from src.core.data import AirQalityMeasurement
+from src.core.data import AirQalityMeasurement, AirQalityPrediction
 
 
 class Loader(ABC):
@@ -114,7 +115,11 @@ class MeasurementLoader(ValidationLoader):
 
 class Inserter(ABC):
     @abstractmethod
-    def insert_data(self, data: list[AirQalityMeasurement]) -> None:
+    def insert_data(
+        self, data: List[AirQalityMeasurement] | List[AirQalityPrediction]
+    ) -> None:
+        # TODO: only one AirQalityMeasurement | AirQalityPrediction,
+        # BaseModel not allowed for some reason
         pass
 
 
@@ -132,7 +137,9 @@ class HopsworkFsInserter(Inserter):
             project=fs_projet_name, api_key_value=fs_api_key
         )
 
-    def insert_data(self, data: list[AirQalityMeasurement]) -> None:
+    def insert_data(
+        self, data: List[AirQalityMeasurement] | List[AirQalityPrediction]
+    ) -> None:
         data = pd.DataFrame([v.model_dump() for v in data])
 
         fs = self.project.get_feature_store()

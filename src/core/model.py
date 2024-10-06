@@ -5,8 +5,6 @@ import pickle
 from abc import ABC, abstractmethod
 from typing import Dict, List, Tuple
 
-import numpy as np
-import numpy.typing as npt
 import pandas as pd
 from comet_ml import Experiment
 from comet_ml.api import API
@@ -51,7 +49,7 @@ class Model(ABC):
     @abstractmethod
     def predict(
         self, measurements: List[AirQalityMeasurement]
-    ) -> npt.NDArray[np.float64]:
+    ) -> List[AirQalityPrediction]:
         pass
 
 
@@ -103,7 +101,7 @@ class AqiModel(Model):
 
     def predict(
         self, measurements: List[AirQalityMeasurement]
-    ) -> npt.NDArray[np.float64]:
+    ) -> List[AirQalityPrediction]:
         inputs = self.process_inputs(measurements)
         prediction = self.predictor.predict(inputs)
 
@@ -138,10 +136,10 @@ class AqiExperimentLogger:
     def create_evaluation_logs(
         self,
         test_data: List[AirQalityMeasurement],
-        predictions: npt.NDArray[np.float64],
+        prediction: List[AirQalityPrediction],
     ) -> Dict[str, float]:
         labels = [x.aqi for x in test_data]
-        predictions = [x.prediction for x in predictions]
+        predictions = [x.prediction for x in prediction]
 
         metrics = dict(
             mae=mean_absolute_error(labels, predictions),

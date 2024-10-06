@@ -10,12 +10,64 @@ from comet_ml import API, Experiment
 
 
 def load_params(params_file: str) -> ConfigBox:
+    """
+    Load parameters from a YAML file and return them as a ConfigBox object.
+
+    This function reads a YAML file, loads its contents into a dictionary, and
+    wraps it into a ConfigBox object for easier access to the configuration
+    parameters.
+
+    Args:
+        params_file (str): The path to the YAML file containing configuration
+            parameters.
+
+    Returns:
+        ConfigBox: A ConfigBox object containing the parameters loaded from the
+        YAML file.
+
+    Raises:
+        FileNotFoundError: If the specified `params_file` does not exist.
+        yaml.YAMLError: If there is an error parsing the YAML file.
+
+    Example:
+        >>> config = load_params("config.yaml")
+        This will load the parameters from the 'config.yaml' file and return a
+        ConfigBox object.
+    """
     with open(params_file, "r") as f:
         params = yaml.safe_load(f)
     return ConfigBox(params)
 
 
 def reindex_dataframe(df: pd.DataFrame, date_col_name: str) -> pd.DataFrame:
+    """
+    Reindex a DataFrame based on a specified date column.
+
+    This function sorts the DataFrame by the specified date column, sets the
+    date column as the index, and reindexes the DataFrame to ensure that all
+    dates in the range from the minimum to the maximum date are included,
+    filling missing dates with NaN.
+
+    Args:
+        df (pd.DataFrame): The DataFrame to reindex.
+        date_col_name (str): The name of the column containing date values.
+
+    Returns:
+        pd.DataFrame: A reindexed DataFrame with a DatetimeIndex.
+
+    Raises:
+        KeyError: If `date_col_name` does not exist in the DataFrame.
+        ValueError: If the DataFrame is empty or the date column has invalid
+            values.
+
+    Example:
+        >>> df = pd.DataFrame({
+        ...     'date': ['2024-01-01', '2024-01-03'],
+        ...     'value': [10, 20]
+        ... })
+        >>> df['date'] = pd.to_datetime(df['date'])
+        >>> reindexed_df = reindex_dataframe(df, 'date')
+    """
     df = df.sort_values(date_col_name, ascending=True)
     df = df.set_index(date_col_name)
     df.index = pd.DatetimeIndex(df.index)
@@ -33,6 +85,35 @@ def get_best_experiment_today(
     project_name: str,
     metric_name: str = "test_rmse",
 ) -> Experiment:
+    """
+    Retrieve the best experiment for today based on a specified metric.
+
+    This function connects to the API using the provided API key, retrieves
+    all experiments for the specified workspace and project, and identifies
+    the experiment with the lowest value for the specified metric that was
+    completed today.
+
+    Args:
+        api_key (str): The API key for authentication.
+        workspace_name (str): The name of the workspace to query.
+        project_name (str): The name of the project to query.
+        metric_name (str, optional): The name of the metric to evaluate.
+            Defaults to "test_rmse".
+
+    Returns:
+        Experiment: The best experiment object for today based on the specified
+        metric.
+
+    Raises:
+        ValueError: If no experiments are found for today.
+
+    Example:
+        >>> best_experiment = get_best_experiment_today(
+        ...     api_key="your_api_key",
+        ...     workspace_name="your_workspace",
+        ...     project_name="your_project"
+        ... )
+    """
     api = API(api_key=api_key)
     min_metric_value: float = 2000
 
@@ -75,7 +156,7 @@ def set_prod_status_to_none(
 
 def run_command_on_azure(
     config: str, cli_command: str, params: ConfigBox, ml_client: MLClient
-) -> str:
+) -> str | None:
     # configure job
     job = command(
         code=config,
