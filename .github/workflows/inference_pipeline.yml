@@ -1,4 +1,4 @@
-name: Run feature pipeline every day once
+name: Inference pipeline
 on:
   schedule:
   - cron: '45 16 * * *'
@@ -35,10 +35,10 @@ jobs:
       run: poetry install --with pipeline_runners
 
     - name: Run feature pipeline
-      run: python src/run_feature_pipeline.py config.yaml
+      run: poetry run python src/run_feature_pipeline.py config.yaml
 
     - name: Run training pipeline
-      run: python src/run_training_pipeline.py config.yaml
+      run: poetry run python src/run_training_pipeline.py config.yaml
 
     - name: Run inference pipeline
-      run: python src/run_inference_pipeline.py config.yaml
+      run: poetry run python src/run_inference_pipeline.py config.yaml
