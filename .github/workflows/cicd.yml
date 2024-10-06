@@ -44,9 +44,19 @@ jobs:
 
     - name: Install python packages
       run: |
-        poetry install
+        poetry install --only dev
 
-    - name: Unit test application
+    - name: Run code quality tests
+      run: |
+        poetry run isort --check src
+        poetry run black src --check
+        poetry run flake8 src
+
+    - name: Run type tests
+      run: |
+        poetry run mypy src/
+
+    - name: Run unit tests
       run: |
         poetry run pytest tests/
 
@@ -63,6 +73,29 @@ jobs:
     - name: push docker image
       run: |
         docker push teremyz21/airquality_env
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - uses: actions/setup-python@v4
+      with:
+        python-version: '3.10.10'
+
+    - name: Install azure cli
+      run: |
+        curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+        az extension add -n ml
+
+    - name: Azure login
+      uses: azure/login@v2
+      with:
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
     - name: create environment in azure ml from docker image
       run: |
