@@ -1,0 +1,44 @@
+name: Run feature pipeline every day once
+on:
+  schedule:
+  - cron: '45 16 * * *'
+permissions:
+  id-token: write
+
+env:
+  AQI_TOKEN: ${{ secrets.AQI_TOKEN }}
+  FS_API_KEY: ${{ secrets.FS_API_KEY }}
+  FS_PROJECT_NAME: ${{ secrets.FS_PROJECT_NAME }}
+  COMETML_PROJECT_NAME: ${{ secrets.COMETML_PROJECT_NAME }}
+  COMETML_WORKSPACE_NAME: ${{ secrets.COMETML_WORKSPACE_NAME }}
+  COMETML_API_KEY: ${{ secrets.COMETML_API_KEY }}
+
+jobs:
+
+  feature_pipeline:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - uses: actions/setup-python@v4
+      with:
+        python-version: '3.10.10'
+    - name: Update pip
+      run: pip install -U pip
+
+    - name: Install poetry
+      run: pip install poetry==1.5.1
+
+    - name: Install python packages #TODO: install only necessary poetry packages
+      run: poetry install --with pipeline_runners
+
+    - name: Run feature pipeline
+      run: python src/run_feature_pipeline.py config.yaml
+
+    - name: Run training pipeline
+      run: python src/run_training_pipeline.py config.yaml
+
+    - name: Run inference pipeline
+      run: python src/run_inference_pipeline.py config.yaml
