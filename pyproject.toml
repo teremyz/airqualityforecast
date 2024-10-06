@@ -39,12 +39,20 @@ isort = "^5.13.2"
 pytest-cov = "^4.1.0"
 pre-commit = "^3.6.0"
 flake8 = "^7.0.0"
-mypy = "^1.8.0"
-black = {version = "^24.1a1", allow-prereleases = true}
+mypy = "^5.13.2"
+black = "^23.12.1"
 ipykernel = "^6.29.0"
 pathlib = "^1.0.1"
 types-requests = "2.25"
 types-pyyaml = "^6.0.12.12"
+
+[tool.poetry.group.pipeline_runners.dependencies] #TODO: may get rid of this
+typer = "^0.6.0"
+typer-cli = "^0.0.13"
+python-dotenv = "^1.0.0"
+azure-ai-ml = "^1.20.0"
+azure-identity = "^1.17.1"
+azure-keyvault-secrets = "^4.8.0"
 
 [tool.poetry.scripts]
 inference_pipeline = 'src.stages.inference_pipeline:app'
