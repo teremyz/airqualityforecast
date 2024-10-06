@@ -43,6 +43,8 @@ mypy = "^1.8.0"
 black = {version = "^24.1a1", allow-prereleases = true}
 ipykernel = "^6.29.0"
 pathlib = "^1.0.1"
+types-requests = "2.25"
+types-pyyaml = "^6.0.12.12"
 
 [tool.poetry.scripts]
 inference_pipeline = 'src.stages.inference_pipeline:app'
