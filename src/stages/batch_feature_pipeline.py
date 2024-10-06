@@ -24,7 +24,10 @@ def main(config: str = "config.yaml") -> None:
             loader=MeasurementDataSource(file_path=params.basic.data_path)
         ),
         inserter=HopsworkFsInserter(
-            fs_projet_name=FS_PROJECT_NAME, fs_api_key=FS_API_KEY
+            fg_name=params.basic.feature_group_name,
+            fg_description=params.basic.feature_group_description,
+            fs_projet_name=FS_PROJECT_NAME,
+            fs_api_key=FS_API_KEY,
         ),
     )
     feature_pipeline.run()
