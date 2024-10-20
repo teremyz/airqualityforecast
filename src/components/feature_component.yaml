@@ -1,0 +1,17 @@
+$schema: https://azuremlschemas.azureedge.net/latest/commandComponent.schema.json
+name: feature_pipeline
+display_name: Run feature pipeline
+version: 1
+type: command
+inputs:
+  config:
+    type: string
+    default: config.yaml
+outputs:
+  config_path:
+    type: string
+    default: config.yaml
+code: ../../
+environment: azureml:airquality_env@latest
+command: >-
+  python src/components/comp_api_feature_pipeline.py ${{inputs.config}} ${{outputs.config_path}}

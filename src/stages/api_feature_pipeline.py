@@ -1,3 +1,24 @@
+"""
+Main execution script for running the feature pipeline.
+
+This script loads environment variables and configuration parameters,
+initializes a feature pipeline, and processes air quality data from
+an external API. It inserts the processed data into Hopsworks Feature Store.
+
+Args:
+    config (str): Path to the configuration file containing
+    parameters for the feature pipeline.
+    aqi_token (str, optional): Air Quality Index (AQI) API token
+    used for accessing data.
+    fs_api_key (str, optional): Hopsworks Feature Store API key for
+    authentication.
+    fs_project_name (str, optional): Name of the Hopsworks Feature
+    Store project.
+
+Returns:
+    None
+"""
+
 import logging
 import os
 
@@ -16,12 +37,33 @@ logging.basicConfig(level=logging.INFO)
 app = typer.Typer()
 
 
+@app.command()
 def main(
     config: str,
     aqi_token: str = "",
     fs_api_key: str = "",
     fs_project_name: str = "",
 ) -> None:
+    """
+    Main function to run the feature pipeline.
+
+    This function loads environment variables and configuration
+    parameters, sets up data loading from the AQI API, and inserts
+    processed data into the Hopsworks Feature Store.
+
+    Args:
+        config (str): Path to the configuration file containing
+        parameters for the feature pipeline.
+        aqi_token (str, optional): Air Quality Index (AQI) API token
+        used for accessing data.
+        fs_api_key (str, optional): Hopsworks Feature Store API key
+        for authentication.
+        fs_project_name (str, optional): Name of the Hopsworks Feature
+        Store project.
+
+    Returns:
+        None
+    """
     logging.info("Load params..")
     params = load_params(params_file=config)
     logging.info("Get env variables")
@@ -37,7 +79,7 @@ def main(
             loader=APIDataSource(token=AQI_TOKEN, city_id=params.basic.city_id)
         ),
         inserter=HopsworkFsInserter(
-            fg_name=params.feature_group_description.feature_group_name,
+            fg_name=params.basic.feature_group_name,
             fg_description=params.basic.feature_group_description,
             fs_projet_name=FS_PROJECT_NAME,
             fs_api_key=FS_API_KEY,

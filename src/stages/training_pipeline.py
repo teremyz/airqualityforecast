@@ -14,7 +14,10 @@ from src.core.model import (
 from src.core.pipelines import TrainingPipeline
 from src.core.utils import load_params
 
+app = typer.Typer()
 
+
+@app.command()
 def main(
     config: str,
     comet_project_name: str = "",
@@ -67,4 +70,4 @@ def main(
 
 
 if __name__ == "__main__":
-    typer.run(main)
+    app()

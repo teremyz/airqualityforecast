@@ -106,13 +106,6 @@ def get_best_experiment_today(
 
     Raises:
         ValueError: If no experiments are found for today.
-
-    Example:
-        >>> best_experiment = get_best_experiment_today(
-        ...     api_key="your_api_key",
-        ...     workspace_name="your_workspace",
-        ...     project_name="your_project"
-        ... )
     """
     api = API(api_key=api_key)
     min_metric_value: float = 2000
@@ -139,6 +132,23 @@ def get_best_experiment_today(
 def set_prod_status_to_none(
     api_key: str, workspace: str, registry_name: str
 ) -> None:
+    """
+    Set the production status of the specified model registry to None.
+
+    This function retrieves the model registry assets and sets the
+    production status of the currently active version of the model to
+    None.
+
+    Args:
+        api_key (str): The API key for authenticating with the model
+        registry.
+        workspace (str): The name of the workspace containing the model
+        registry.
+        registry_name (str): The name of the model registry.
+
+    Returns:
+        None
+    """
     api = API(api_key=api_key)
     registry_assets = api.get_model_registry_version_assets(
         workspace=workspace, registry_name=registry_name
@@ -157,6 +167,22 @@ def set_prod_status_to_none(
 def run_command_on_azure(
     config: str, cli_command: str, params: ConfigBox, ml_client: MLClient
 ) -> str | None:
+    """
+    Run a specified command on Azure using the provided configuration.
+
+    This function configures and submits a job to Azure Machine
+    Learning based on the provided command and parameters.
+
+    Args:
+        config (str): The path to the configuration file.
+        cli_command (str): The command to execute on Azure.
+        params (ConfigBox): Configuration parameters for the Azure job.
+        ml_client (MLClient): The MLClient for interacting with Azure.
+
+    Returns:
+        str | None: The URL of the submitted job in the Azure Studio or
+        None if the job submission fails.
+    """
     # configure job
     job = command(
         code=config,

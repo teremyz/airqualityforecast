@@ -1,3 +1,29 @@
+"""
+Main execution script for running the inference pipeline.
+
+This script loads environment variables and configuration parameters,
+initializes the inference pipeline for predicting air quality data
+using a pre-trained model, and inserts predictions into the
+Hopsworks Feature Store.
+
+Args:
+    config (str): Path to the configuration file containing
+    parameters for the inference pipeline.
+    comet_project_name (str, optional): CometML project name for model
+    management.
+    comet_workspace (str, optional): CometML workspace name for model
+    management.
+    fs_api_key (str, optional): Hopsworks Feature Store API key for
+    authentication.
+    fs_project_name (str, optional): Name of the Hopsworks Feature
+    Store project.
+    comet_api_key (str, optional): CometML API key for accessing the
+    CometML platform.
+
+Returns:
+    None
+"""
+
 import datetime
 import logging
 import os
@@ -27,6 +53,30 @@ def main(
     fs_project_name: str = "",
     comet_api_key: str = "",
 ) -> None:
+    """
+    Main function to run the inference pipeline.
+
+    This function loads environment variables and configuration
+    parameters, sets up the data loader, model downloader, and prediction
+    writer, and executes the inference pipeline.
+
+    Args:
+        config (str): Path to the configuration file containing
+        parameters for the inference pipeline.
+        comet_project_name (str, optional): CometML project name for
+        model management.
+        comet_workspace (str, optional): CometML workspace name for
+        model management.
+        fs_api_key (str, optional): Hopsworks Feature Store API key for
+        authentication.
+        fs_project_name (str, optional): Name of the Hopsworks Feature
+        Store project.
+        comet_api_key (str, optional): CometML API key for accessing the
+        CometML platform.
+
+    Returns:
+        None
+    """
     logging.info(f"Config file path: {config}")
     params = load_params(params_file=config)
 

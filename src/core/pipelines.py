@@ -15,23 +15,73 @@ from src.core.model import (
 
 
 class Pipeline(ABC):
+    """
+    Abstract base class for defining a pipeline.
+
+    Args:
+        None
+
+    Returns:
+        None
+    """
+
     @abstractmethod
     def run(self) -> None:
+        """
+        Run the pipeline.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
         pass
 
 
 class FeaturePipeline(Pipeline):
+    """
+    A pipeline for loading measurements and inserting them into a data store.
+
+    Args:
+        loader (MeasurementLoader): The loader to retrieve measurements.
+        inserter (Inserter): The inserter to store the data.
+    """
+
     def __init__(self, loader: MeasurementLoader, inserter: Inserter):
         self.loader = loader
         self.inserter = inserter
 
     def run(self) -> None:
+        """
+        Execute the feature pipeline.
+
+        This method retrieves measurements using the loader and
+        inserts them into a data store.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
         measurements = self.loader.get_measurements()
 
         self.inserter.insert_data(measurements)
 
 
 class TrainingPipeline(Pipeline):
+    """
+    A pipeline for training a machine learning model.
+
+    Args:
+        loader (MeasurementLoader): The loader to retrieve measurements.
+        splitter (AqiSplitter): The splitter to divide data into train/test.
+        model (AqiModel): The model to be trained.
+        logger (AqiExperimentLogger): The logger to record metrics.
+        model_registry (ModelRegistry): The registry for managing models.
+    """
+
     def __init__(
         self,
         loader: MeasurementLoader,
@@ -47,6 +97,19 @@ class TrainingPipeline(Pipeline):
         self.model_registry = model_registry
 
     def run(self) -> None:
+        """
+        Execute the training pipeline.
+
+        This method retrieves measurements, splits them into train and
+        test sets, trains the model, generates predictions, logs
+        evaluation metrics, and registers the model.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
         measurements = self.loader.get_measurements()
 
         train_data, test_data = self.splitter.split(measurements)
@@ -65,6 +128,17 @@ class TrainingPipeline(Pipeline):
 
 
 class HyperparameterOptimizationPipeline:  # TODO: no parent class
+    """
+    A pipeline for optimizing hyperparameters of a machine learning model.
+
+    Args:
+        loader (MeasurementLoader): The loader to retrieve measurements.
+        model (AqiModel): The model to optimize.
+        logger (AqiExperimentLogger): The logger to record metrics.
+        train_test_splitter (AqiSplitter): The splitter for train/test data.
+        model_registry (ModelRegistry): The registry for managing models.
+    """
+
     def __init__(
         self,
         loader: MeasurementLoader,
@@ -82,7 +156,22 @@ class HyperparameterOptimizationPipeline:  # TODO: no parent class
     def run(
         self, n_trials: int, direction: str, study_name: str
     ) -> None:  # TODO: Is it a pipeline child? IF yes delete parameters
-        # TODO: put them in init or config
+        # TODO: put them in init or config. Consider to change this to function
+        """
+        Execute hyperparameter optimization.
+
+        This method retrieves measurements, splits them into train
+        and test sets, and performs optimization using Optuna.
+
+        Args:
+            n_trials (int): The number of trials for optimization.
+            direction (str): The direction of optimization ("minimize" or
+                "maximize").
+            study_name (str): The name of the Optuna study.
+
+        Returns:
+            None
+        """
         measurements = self.loader.get_measurements()
 
         train_data, test_data = self.train_test_splitter.split(measurements)
@@ -102,6 +191,15 @@ class HyperparameterOptimizationPipeline:  # TODO: no parent class
 
 
 class InferencePipeline(Pipeline):
+    """
+    A pipeline for performing inference using a trained model.
+
+    Args:
+        loader (ValidationLoader): The loader to retrieve validation data.
+        model_downloader (ModelDownloader): The downloader for the model.
+        prediction_writer (Inserter): The inserter to store predictions.
+    """
+
     def __init__(
         self,
         loader: ValidationLoader,
@@ -113,6 +211,18 @@ class InferencePipeline(Pipeline):
         self.prediction_writer = prediction_writer
 
     def run(self) -> None:
+        """
+        Execute the inference pipeline.
+
+        This method retrieves validation measurements, downloads the
+        model, makes a prediction, and stores the prediction.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
         data = self.loader.get_measurements()
 
         model = self.model_downloader.get_model()

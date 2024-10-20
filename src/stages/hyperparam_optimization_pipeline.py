@@ -14,7 +14,10 @@ from src.core.model import (
 from src.core.pipelines import HyperparameterOptimizationPipeline
 from src.core.utils import load_params
 
+app = typer.Typer()
 
+
+@app.command()
 def main(config: str = "config.yaml") -> None:
     params = load_params(params_file=config)
     load_dotenv(params.basic.env_path)
@@ -56,4 +59,4 @@ def main(config: str = "config.yaml") -> None:
 
 
 if __name__ == "__main__":
-    typer.run(main)
+    app()

@@ -1,3 +1,18 @@
+"""
+Main execution script for running inference pipeline on Azure.
+
+This script loads environment variables, retrieves configuration
+parameters, and executes an Azure Machine Learning inference
+pipeline command.
+
+Args:
+    config (str): Path to the configuration file containing
+    parameters for the pipeline.
+
+Returns:
+    None
+"""
+
 import os
 
 import typer

@@ -1,3 +1,17 @@
+"""
+Main execution script for running an Azure feature pipeline.
+
+This script loads environment variables, retrieves configuration parameters,
+and executes an Azure Machine Learning pipeline command using the Azure CLI.
+
+Args:
+    config (str): Path to the configuration file containing parameters
+    for the pipeline.
+
+Returns:
+    None
+"""
+
 import os
 
 import typer
@@ -9,6 +23,17 @@ from src.core.utils import load_params, run_command_on_azure
 
 
 def main(config: str) -> None:
+    """
+    Main function that loads environment variables, configuration
+    parameters, and runs the feature pipeline command on Azure.
+
+    Args:
+        config (str): Path to the configuration file containing parameters.
+
+    Returns:
+        None
+    """
+
     load_dotenv()
     params = load_params(params_file=config)
 

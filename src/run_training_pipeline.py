@@ -1,3 +1,18 @@
+"""
+Main execution script for running the training pipeline on Azre ML.
+
+This script loads environment variables, retrieves configuration
+parameters, and executes an Azure Machine Learning training
+pipeline command.
+
+Args:
+    config (str): Path to the configuration file containing
+    parameters for the training pipeline.
+
+Returns:
+    None
+"""
+
 import os
 
 import typer
