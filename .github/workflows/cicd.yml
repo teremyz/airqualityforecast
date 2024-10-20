@@ -8,6 +8,14 @@ on:
 permissions:
   id-token: write
 
+env:
+  AQI_TOKEN: ${{ secrets.AQI_TOKEN }}
+  FS_API_KEY: ${{ secrets.FS_API_KEY }}
+  FS_PROJECT_NAME: ${{ secrets.FS_PROJECT_NAME }}
+  COMETML_PROJECT_NAME: ${{ secrets.COMETML_PROJECT_NAME }}
+  COMETML_WORKSPACE_NAME: ${{ secrets.COMETML_WORKSPACE_NAME }}
+  COMETML_API_KEY: ${{ secrets.COMETML_API_KEY }}
+
 jobs:
 
   build:
