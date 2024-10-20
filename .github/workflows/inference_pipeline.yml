@@ -2,6 +2,8 @@ name: Inference pipeline
 on:
   schedule:
   - cron: '45 16 * * *'
+  workflow_dispatch:
+
 permissions:
   id-token: write
 
