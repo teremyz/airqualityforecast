@@ -23,6 +23,8 @@ import logging
 import os
 
 import typer
+from azure.identity import DefaultAzureCredential
+from azure.keyvault.secrets import SecretClient
 from dotenv import load_dotenv
 
 from src.core.loaders import (
@@ -40,9 +42,6 @@ app = typer.Typer()
 @app.command()
 def main(
     config: str,
-    aqi_token: str = "",
-    fs_api_key: str = "",
-    fs_project_name: str = "",
 ) -> None:
     """
     Main function to run the feature pipeline.
@@ -68,10 +67,20 @@ def main(
     params = load_params(params_file=config)
     logging.info("Get env variables")
     load_dotenv(params.basic.env_path)
-
-    AQI_TOKEN = os.getenv("AQI_TOKEN", aqi_token)
-    FS_API_KEY = os.getenv("FS_API_KEY", fs_api_key)
-    FS_PROJECT_NAME = os.getenv("FS_PROJECT_NAME", fs_project_name)
+    credential = DefaultAzureCredential()
+    secret_client = SecretClient(
+        vault_url=params.azure.vault_url,
+        credential=credential,
+    )
+    AQI_TOKEN = os.getenv(
+        "AQI_TOKEN", secret_client.get_secret("AQI-TOKEN").value
+    )
+    FS_API_KEY = os.getenv(
+        "FS_API_KEY", secret_client.get_secret("FS-API-KEY").value
+    )
+    FS_PROJECT_NAME = os.getenv(
+        "FS_PROJECT_NAME", secret_client.get_secret("FS-PROJECT-NAME").value
+    )
 
     logging.info("Feature pipeline has started..")
     feature_pipeline = FeaturePipeline(

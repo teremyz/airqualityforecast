@@ -38,16 +38,10 @@ def main(config: str) -> None:
     params = load_params(params_file=config)
 
     subscription_id = os.getenv("AZURE_SUBSCRIPTION_ID")
-    FS_API_KEY = os.getenv("FS_API_KEY", "")
-    FS_PROJECT_NAME = os.getenv("FS_PROJECT_NAME", "")
-    AQI_TOKEN = os.getenv("AQI_TOKEN", "")
 
     aml_url = run_command_on_azure(
         config=config,
-        cli_command=f"""feature_pipeline config.yaml  \
-            --aqi-token {AQI_TOKEN} \
-            --fs-api-key {FS_API_KEY} \
-            --fs-project-name {FS_PROJECT_NAME}""",
+        cli_command="feature_pipeline config.yaml",
         display_name="feature-pipeline",
         environment=params.azure.environment,
         compute=params.azure.compute,

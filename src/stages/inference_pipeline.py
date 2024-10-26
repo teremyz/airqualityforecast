@@ -29,6 +29,8 @@ import logging
 import os
 
 import typer
+from azure.identity import DefaultAzureCredential
+from azure.keyvault.secrets import SecretClient
 from dotenv import load_dotenv
 
 from src.core.loaders import (
@@ -47,11 +49,6 @@ app = typer.Typer()
 @app.command()
 def main(
     config: str,
-    comet_project_name: str = "",
-    comet_workspace: str = "",
-    fs_api_key: str = "",
-    fs_project_name: str = "",
-    comet_api_key: str = "",
 ) -> None:
     """
     Main function to run the inference pipeline.
@@ -82,8 +79,20 @@ def main(
 
     logging.info(f"Get env variables: {config}")
     load_dotenv(params.basic.env_path)
-    project_name = os.getenv("COMETML_PROJECT_NAME", comet_project_name)
-    workspace = os.getenv("COMETML_WORKSPACE_NAME", comet_workspace)
+    credential = DefaultAzureCredential()
+    secret_client = SecretClient(
+        vault_url=params.azure.vault_url,
+        credential=credential,
+    )
+
+    project_name = os.getenv(
+        "COMETML_PROJECT_NAME",
+        secret_client.get_secret("COMETML-PROJECT-NAME").value,
+    )
+    workspace = os.getenv(
+        "COMETML_WORKSPACE_NAME",
+        secret_client.get_secret("COMETML-WORKSPACE-NAME").value,
+    )
 
     logging.info("Inference pipeline has started...")
     inference_pipeline = InferencePipeline(
@@ -94,14 +103,22 @@ def main(
                     2024, 5, 1
                 ),  # TODO: change for today
                 lags=params.train.lags,
-                fs_api_key=os.getenv("FS_API_KEY", fs_api_key),
-                fs_project_name=os.getenv("FS_PROJECT_NAME", fs_project_name),
+                fs_api_key=os.getenv(
+                    "FS_API_KEY", secret_client.get_secret("FS-API-KEY").value
+                ),
+                fs_project_name=os.getenv(
+                    "FS_PROJECT_NAME",
+                    secret_client.get_secret("FS-PROJECT-NAME").value,
+                ),
                 feature_group_name=params.basic.feature_group_name,
                 version=params.basic.feature_group_version,
             )
         ),
         model_downloader=CometModelDownloader(
-            api_key=os.getenv("COMETML_API_KEY", comet_api_key),
+            api_key=os.getenv(
+                "COMETML_API_KEY",
+                secret_client.get_secret("COMETML-API-KEY").value,
+            ),
             workspace=workspace,
             project_name=project_name,
             model_dir=params.inference.model_dir,
@@ -110,8 +127,13 @@ def main(
         prediction_writer=HopsworkFsInserter(
             fg_name=params.basic.prediction_group_name,
             fg_description=params.basic.prediction_group_description,
-            fs_projet_name=os.getenv("FS_PROJECT_NAME", fs_project_name),
-            fs_api_key=os.getenv("FS_API_KEY", fs_api_key),
+            fs_projet_name=os.getenv(
+                "FS_PROJECT_NAME",
+                secret_client.get_secret("FS-PROJECT-NAME").value,
+            ),
+            fs_api_key=os.getenv(
+                "FS_API_KEY", secret_client.get_secret("FS-API-KEY").value
+            ),
         ),
     )
 

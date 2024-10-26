@@ -17,6 +17,7 @@ azure:
   inference_experiment_name: "air-quality-inference"
   feature_display_name: "air-quality-feature"
   feature_experiment_name: "air-quality-feature"
+  vault_url: "https://mlairquakeyvaultc450882a.vault.azure.net/"
 
 train:
   artifact_dir: "artifacts/"

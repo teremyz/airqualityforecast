@@ -28,20 +28,10 @@ def main(config: str) -> None:
     params = load_params(params_file=config)
 
     subscription_id = os.getenv("AZURE_SUBSCRIPTION_ID")
-    FS_API_KEY = os.getenv("FS_API_KEY", "")
-    FS_PROJECT_NAME = os.getenv("FS_PROJECT_NAME", "")
-    COMETML_API_KEY = os.getenv("COMETML_API_KEY", "")
-    COMETML_PROJECT_NAME = os.getenv("COMETML_PROJECT_NAME", "")
-    COMETML_WORKSPACE_NAME = os.getenv("COMETML_WORKSPACE_NAME", "")
 
     aml_url = run_command_on_azure(
         config=config,
-        cli_command=f"""training_pipeline config.yaml  \
-            --comet-project-name {COMETML_PROJECT_NAME} \
-            --comet-workspace {COMETML_WORKSPACE_NAME} \
-            --fs-api-key {FS_API_KEY} \
-            --fs-project-name {FS_PROJECT_NAME} \
-            --comet-api-key {COMETML_API_KEY}""",
+        cli_command="training_pipeline config.yaml",
         display_name="training-pipeline",
         environment=params.azure.environment,
         compute=params.azure.compute,
