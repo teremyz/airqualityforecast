@@ -13,4 +13,4 @@ ADD src src/
 RUN poetry build
 RUN pip install dist/airqualityforecast-0.1.0-py3-none-any.whl
 
-ENTRYPOINT [ "inference_pipeline", "config.yaml" ]
+RUN mkdir /artifacts

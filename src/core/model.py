@@ -213,7 +213,9 @@ class AqiModel(Model):
             List[AirQalityPrediction]: A list of predictions for air
             quality.
         """
+
         inputs = self.process_inputs(measurements)
+
         prediction = self.predictor.predict(inputs)
 
         return [
@@ -257,8 +259,11 @@ class AqiExperimentLogger:
         self.project_name = project_name
         self.workspace = workspace
 
-        for filename in os.listdir(artifact_dir):
-            os.remove(os.path.join(artifact_dir, filename))
+        if os.path.isdir(artifact_dir):
+            for filename in os.listdir(artifact_dir):
+                os.remove(os.path.join(artifact_dir, filename))
+        else:
+            os.mkdir(artifact_dir)
 
     def create_evaluation_logs(
         self,
@@ -279,8 +284,19 @@ class AqiExperimentLogger:
             Dict[str, float]: A dictionary containing evaluation metrics
             (MAE, MSE, RMSE, R-squared, MAPE).
         """
-        labels = [x.aqi for x in test_data]
-        predictions = [x.prediction for x in prediction]
+        # pickle.dump(test_data, open('test_data.pkl', "wb")) #TODO: delete
+        # pickle.dump(prediction, open('prediction.pkl', "wb")) #TODO: delete
+
+        # labels = [x.aqi for x in test_data]
+        # predictions = [x.prediction for x in prediction]
+        # Keep only predictions to which there are ground truth
+        test_data_df = pd.DataFrame([v.model_dump() for v in test_data])
+        prediction_df = pd.DataFrame([v.model_dump() for v in prediction])
+        df = test_data_df[["date", "aqi"]].merge(
+            prediction_df, on="date", how="left"
+        )
+        labels = df.aqi.tolist()
+        predictions = df.prediction.tolist()
 
         metrics = dict(
             mae=mean_absolute_error(labels, predictions),

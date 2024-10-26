@@ -108,8 +108,8 @@ def main(
             model_name=params.train.model_name,
         ),
         prediction_writer=HopsworkFsInserter(
-            fg_name=params.basic.feature_group_name,  # TODO: config
-            fg_description=params.basic.feature_group_description,
+            fg_name=params.basic.prediction_group_name,
+            fg_description=params.basic.prediction_group_description,
             fs_projet_name=os.getenv("FS_PROJECT_NAME", fs_project_name),
             fs_api_key=os.getenv("FS_API_KEY", fs_api_key),
         ),

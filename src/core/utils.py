@@ -117,7 +117,7 @@ def get_best_experiment_today(
 
         if experiment_date == date.today().strftime("%Y-%m-%d"):
             metrics = experiment.get_metrics()
-            print(metrics)
+
             metric = float(
                 [x for x in metrics if x["metricName"] == metric_name][0][
                     "metricValue"
@@ -165,7 +165,12 @@ def set_prod_status_to_none(
 
 
 def run_command_on_azure(
-    config: str, cli_command: str, params: ConfigBox, ml_client: MLClient
+    config: str,
+    cli_command: str,
+    ml_client: MLClient,
+    display_name: str,
+    environment: str,
+    compute: str,
 ) -> str | None:
     """
     Run a specified command on Azure using the provided configuration.
@@ -176,8 +181,11 @@ def run_command_on_azure(
     Args:
         config (str): The path to the configuration file.
         cli_command (str): The command to execute on Azure.
-        params (ConfigBox): Configuration parameters for the Azure job.
         ml_client (MLClient): The MLClient for interacting with Azure.
+        display_name (str): Name of the job in Azure ML
+        environment (str): environment name and version in AzureML
+        compute (str): compute type
+
 
     Returns:
         str | None: The URL of the submitted job in the Azure Studio or
@@ -187,10 +195,10 @@ def run_command_on_azure(
     job = command(
         code=config,
         command=cli_command,
-        environment=params.azure.environment,
-        compute=params.azure.compute,
-        display_name=params.azure.feature_display_name,
-        experiment_name=params.azure.feature_experiment_name,
+        environment=environment,
+        compute=compute,
+        display_name=display_name,
+        experiment_name=display_name,
     )
 
     # submit job

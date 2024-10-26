@@ -48,7 +48,9 @@ def main(config: str) -> None:
             --aqi-token {AQI_TOKEN} \
             --fs-api-key {FS_API_KEY} \
             --fs-project-name {FS_PROJECT_NAME}""",
-        params=params,
+        display_name="feature-pipeline",
+        environment=params.azure.environment,
+        compute=params.azure.compute,
         ml_client=MLClient(
             DefaultAzureCredential(),
             subscription_id,

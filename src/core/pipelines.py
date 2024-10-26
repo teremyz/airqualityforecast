@@ -226,7 +226,7 @@ class InferencePipeline(Pipeline):
         data = self.loader.get_measurements()
 
         model = self.model_downloader.get_model()
-
+        print(f"{data=}")
         prediction = model.predict(data)[-1]
-
+        print(f"{prediction=}")
         self.prediction_writer.insert_data([prediction])

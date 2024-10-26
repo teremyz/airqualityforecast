@@ -42,7 +42,9 @@ def main(config: str) -> None:
             --fs-api-key {FS_API_KEY} \
             --fs-project-name {FS_PROJECT_NAME} \
             --comet-api-key {COMETML_API_KEY}""",
-        params=params,
+        display_name="inference-pipeline",
+        environment=params.azure.environment,
+        compute=params.azure.compute,
         ml_client=MLClient(
             DefaultAzureCredential(),
             subscription_id,

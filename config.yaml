@@ -3,7 +3,9 @@ basic:
   env_path: '.env'
   city_id: 7397
   feature_group_name: "air_quality_feature_group"
-  feature_group_description: "Budapest air quality index data"
+  feature_group_description: "Air quality index data"
+  prediction_group_name: "air_quality_prediction"
+  prediction_group_description: "Air Quality Prediction"
   feature_group_version: 1
 
 azure:

@@ -358,7 +358,8 @@ class HopsworkFsInserter(Inserter):
         data = pd.DataFrame([v.model_dump() for v in data])
 
         fs = self.project.get_feature_store()
-
+        print(f"{self.fg_name=}")
+        print(f"{self.fg_description=}")
         aqi_fg = fs.get_or_create_feature_group(
             name=self.fg_name,
             description=self.fg_description,
@@ -366,7 +367,7 @@ class HopsworkFsInserter(Inserter):
             primary_key=["date"],
             event_time="date",
         )
-
+        print(f"{data=}")
         # Insert data into feature group
         aqi_fg.insert(
             data,
