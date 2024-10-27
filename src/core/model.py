@@ -245,9 +245,9 @@ class AqiExperimentLogger:
 
     def __init__(
         self,
-        api_key: str,
-        project_name: str,
-        workspace: str,
+        api_key: str | None,
+        project_name: str | None,
+        workspace: str | None,
         artifact_dir: str,
         model_name: str,
         src_dir: str,
@@ -472,9 +472,9 @@ class ModelRegistry:
 
     def __init__(
         self,
-        api_key: str,
-        workspace_name: str,
-        project_name: str,
+        api_key: str | None,
+        workspace_name: str | None,
+        project_name: str | None,
         model_name: str,
         status: str,
     ):
@@ -553,9 +553,9 @@ class CometModelDownloader(ModelDownloader):
 
     def __init__(
         self,
-        api_key: str,
-        workspace: str,
-        project_name: str,
+        api_key: str | None,
+        workspace: str | None,
+        project_name: str | None,
         model_dir: str,
         model_name: str,
     ) -> None:

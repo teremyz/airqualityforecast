@@ -1,4 +1,3 @@
-import os
 from datetime import date, datetime
 
 import numpy as np
@@ -80,9 +79,9 @@ def reindex_dataframe(df: pd.DataFrame, date_col_name: str) -> pd.DataFrame:
 
 
 def get_best_experiment_today(
-    api_key: str,
-    workspace_name: str,
-    project_name: str,
+    api_key: str | None,
+    workspace_name: str | None,
+    project_name: str | None,
     metric_name: str = "test_rmse",
 ) -> Experiment:
     """
@@ -110,7 +109,10 @@ def get_best_experiment_today(
     api = API(api_key=api_key)
     min_metric_value: float = 2000
 
-    for experiment in api.get(os.path.join(workspace_name, project_name)):
+    # for experiment in api.get(os.path.join(workspace_name, project_name)):
+    for experiment in api.get(
+        workspace=workspace_name, project_name=project_name
+    ):
         experiment_date = datetime.utcfromtimestamp(
             experiment.get_metadata()["endTimeMillis"] / 1000
         ).strftime("%Y-%m-%d")
@@ -130,7 +132,7 @@ def get_best_experiment_today(
 
 
 def set_prod_status_to_none(
-    api_key: str, workspace: str, registry_name: str
+    api_key: str | None, workspace: str | None, registry_name: str | None
 ) -> None:
     """
     Set the production status of the specified model registry to None.

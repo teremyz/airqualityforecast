@@ -94,7 +94,7 @@ class APIDataSource(Loader):
         from the specified API.
     """
 
-    def __init__(self, token: str, city_id: int = 3371):
+    def __init__(self, token: str | None, city_id: int = 3371):
         self.token = token
         self.city_id = city_id
 
@@ -151,8 +151,8 @@ class HopsworkDataLoader(Loader):
 
     def __init__(
         self,
-        fs_api_key: str,
-        fs_project_name: str,
+        fs_api_key: str | None,
+        fs_project_name: str | None,
         feature_group_name: str,
         version: int = 1,
     ):
@@ -329,8 +329,8 @@ class HopsworkFsInserter(Inserter):
         self,
         fg_name: str,
         fg_description: str,
-        fs_projet_name: str,
-        fs_api_key: str,
+        fs_projet_name: str | None,
+        fs_api_key: str | None,
     ) -> None:
         self.fg_name = fg_name
         self.fg_description = fg_description
@@ -398,8 +398,8 @@ class HopsworkPredictionDataLoader(Loader):
 
     def __init__(
         self,
-        fs_api_key: str,
-        fs_project_name: str,
+        fs_api_key: str | None,
+        fs_project_name: str | None,
         feature_group_name: str,
         prediction_date: datetime.date,
         lags: int,
